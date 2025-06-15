@@ -16,7 +16,7 @@ class Config:
         self.serpentine_wiring = True  # True for serpentine, False for progressive
         
         # Animation settings (Pi Zero W optimized)
-        self.brightness = 0.4
+        self.brightness = 0.7
         self.gamma = 2.2
         self.fps = 20  # Reduced for Pi Zero W performance
         self.current_program = "cosmic"
@@ -24,7 +24,7 @@ class Config:
         # Color settings
         self.hue_offset = 0
         self.saturation = 1.0
-        self.brightness_scale = 1.0
+        self.brightness_scale = 1.2  # Increased for better visibility
         self.current_palette = "rainbow"
         
         # Animation parameters
