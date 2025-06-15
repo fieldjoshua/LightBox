@@ -10,15 +10,15 @@ from pathlib import Path
 
 class Config:
     def __init__(self):
-        # Matrix hardware settings
-        self.matrix_width = 10
-        self.matrix_height = 10
+        # Matrix hardware settings (Pi Zero W optimized)
+        self.matrix_width = 8
+        self.matrix_height = 8
         self.serpentine_wiring = True  # True for serpentine, False for progressive
         
-        # Animation settings
-        self.brightness = 0.5
+        # Animation settings (Pi Zero W optimized)
+        self.brightness = 0.4
         self.gamma = 2.2
-        self.fps = 30
+        self.fps = 20  # Reduced for Pi Zero W performance
         self.current_program = "cosmic"
         
         # Color settings

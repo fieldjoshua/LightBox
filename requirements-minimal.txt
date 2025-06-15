@@ -1,0 +1,11 @@
+# Minimal dependencies for Pi Zero W
+# Install with: pip install -r requirements-minimal.txt
+
+# Essential LED control
+adafruit-blinka>=8.0.0
+adafruit-circuitpython-neopixel>=6.0.0
+RPi.GPIO>=0.7.1
+
+# Web interface
+Flask>=2.3.0
+Flask-CORS>=4.0.0
