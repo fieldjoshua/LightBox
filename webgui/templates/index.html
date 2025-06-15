@@ -62,6 +62,10 @@
                     <label for="fps">Frame Rate: <span id="fps-value">30 FPS</span></label>
                     <input type="range" id="fps" min="1" max="60" step="1" value="30">
                 </div>
+                
+                <div class="form-group">
+                    <button id="apply-settings" class="btn btn-primary">Apply Settings</button>
+                </div>
             </section>
 
             <!-- Color Settings -->
@@ -105,6 +109,10 @@
                 <div class="form-group">
                     <label for="brightness-scale">Color Intensity: <span id="brightness-scale-value">100%</span></label>
                     <input type="range" id="brightness-scale" min="0" max="2" step="0.01" value="1.0">
+                </div>
+                
+                <div class="form-group">
+                    <button id="apply-animation" class="btn btn-primary">Apply Animation Settings</button>
                 </div>
             </section>
 
@@ -169,19 +177,50 @@
             document.getElementById('load-program').addEventListener('click', loadProgram);
             document.getElementById('upload-btn').addEventListener('click', uploadProgram);
             
-            // Settings controls - debounced updates
-            const settingsControls = ['brightness', 'gamma', 'fps', 'hue-offset', 'saturation', 'speed', 'scale', 'brightness-scale'];
-            settingsControls.forEach(id => {
+            // Settings controls - only update display, don't auto-submit
+            const allControls = ['brightness', 'gamma', 'fps', 'hue-offset', 'saturation', 'speed', 'scale', 'brightness-scale'];
+            allControls.forEach(id => {
                 const element = document.getElementById(id);
                 element.addEventListener('input', function() {
                     updateValueDisplay(id, element.value);
-                    debouncedUpdate();
+                    // Don't auto-submit anymore - wait for button click
                 });
             });
             
-            // Palette selector
+            // Submit buttons for manual control
+            document.getElementById('apply-settings').addEventListener('click', function() {
+                const updates = {
+                    brightness: parseFloat(document.getElementById('brightness').value),
+                    gamma: parseFloat(document.getElementById('gamma').value),
+                    fps: parseInt(document.getElementById('fps').value)
+                };
+                updateConfig(updates);
+                showFeedback('Settings applied!');
+            });
+            
+            document.getElementById('apply-animation').addEventListener('click', function() {
+                const updates = {
+                    speed: parseFloat(document.getElementById('speed').value),
+                    scale: parseFloat(document.getElementById('scale').value),
+                    brightness_scale: parseFloat(document.getElementById('brightness-scale').value)
+                };
+                updateConfig(updates);
+                showFeedback('Animation settings applied!');
+            });
+            
+            // Palette selector - still auto-applies
             document.getElementById('palette-select').addEventListener('change', function() {
                 updateConfig({ current_palette: this.value });
+                showFeedback('Palette changed!');
+            });
+            
+            // Hue and saturation - still auto-apply for real-time color feedback
+            document.getElementById('hue-offset').addEventListener('change', function() {
+                updateConfig({ hue_offset: parseFloat(this.value) });
+            });
+            
+            document.getElementById('saturation').addEventListener('change', function() {
+                updateConfig({ saturation: parseFloat(this.value) });
             });
             
             // Preset controls
@@ -189,9 +228,34 @@
             document.getElementById('save-preset').addEventListener('click', savePreset);
         }
 
-        function debouncedUpdate() {
-            if (updateTimer) clearTimeout(updateTimer);
-            updateTimer = setTimeout(updateConfigFromForm, 300);
+        function showFeedback(message) {
+            // Create or update feedback element
+            let feedback = document.getElementById('feedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.id = 'feedback';
+                feedback.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #4CAF50;
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 1000;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                document.body.appendChild(feedback);
+            }
+            
+            feedback.textContent = message;
+            feedback.style.opacity = '1';
+            
+            // Fade out after 2 seconds
+            setTimeout(() => {
+                feedback.style.opacity = '0';
+            }, 2000);
         }
 
         function updateValueDisplay(id, value) {
@@ -290,20 +354,6 @@
             }
         }
 
-        function updateConfigFromForm() {
-            const updates = {
-                brightness: parseFloat(document.getElementById('brightness').value),
-                gamma: parseFloat(document.getElementById('gamma').value),
-                fps: parseInt(document.getElementById('fps').value),
-                hue_offset: parseFloat(document.getElementById('hue-offset').value),
-                saturation: parseFloat(document.getElementById('saturation').value),
-                speed: parseFloat(document.getElementById('speed').value),
-                scale: parseFloat(document.getElementById('scale').value),
-                brightness_scale: parseFloat(document.getElementById('brightness-scale').value)
-            };
-            
-            updateConfig(updates);
-        }
 
         async function updateConfig(updates) {
             try {
