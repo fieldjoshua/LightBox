@@ -1,0 +1,30 @@
+[Unit]
+Description=CosmicLED Matrix Animation System
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/home/fieldjoshua/LightBox
+ExecStart=/home/fieldjoshua/LightBox/venv/bin/python3 /home/fieldjoshua/LightBox/CosmicLED.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Environment variables
+Environment=PYTHONPATH=/home/fieldjoshua/LightBox
+Environment=HOME=/home/fieldjoshua
+
+# Resource limits
+MemoryLimit=512M
+CPUQuota=80%
+
+# Security settings (adjust as needed)
+NoNewPrivileges=false
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

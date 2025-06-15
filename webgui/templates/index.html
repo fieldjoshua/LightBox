@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CosmicLED Control Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌟 CosmicLED Control Panel</h1>
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="label">Status:</span>
+                    <span id="status" class="value">Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">FPS:</span>
+                    <span id="fps" class="value">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Program:</span>
+                    <span id="current-program" class="value">cosmic</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Program Selection -->
+            <section class="card">
+                <h2>🎨 Animation Program</h2>
+                <div class="form-group">
+                    <select id="program-select">
+                        <option value="cosmic">Cosmic (Built-in)</option>
+                    </select>
+                    <button id="load-program" class="btn btn-primary">Load Program</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="program-upload">Upload New Program (.py):</label>
+                    <input type="file" id="program-upload" accept=".py">
+                    <button id="upload-btn" class="btn btn-secondary">Upload</button>
+                </div>
+            </section>
+
+            <!-- Brightness & Performance -->
+            <section class="card">
+                <h2>💡 Brightness & Performance</h2>
+                <div class="form-group">
+                    <label for="brightness">Brightness: <span id="brightness-value">50%</span></label>
+                    <input type="range" id="brightness" min="0" max="1" step="0.01" value="0.5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gamma">Gamma Correction: <span id="gamma-value">2.2</span></label>
+                    <input type="range" id="gamma" min="1.0" max="3.0" step="0.1" value="2.2">
+                </div>
+                
+                <div class="form-group">
+                    <label for="fps">Frame Rate: <span id="fps-value">30 FPS</span></label>
+                    <input type="range" id="fps" min="1" max="60" step="1" value="30">
+                </div>
+            </section>
+
+            <!-- Color Settings -->
+            <section class="card">
+                <h2>🎨 Color Settings</h2>
+                <div class="form-group">
+                    <label for="palette-select">Color Palette:</label>
+                    <select id="palette-select">
+                        <option value="rainbow">Rainbow</option>
+                        <option value="fire">Fire</option>
+                        <option value="ocean">Ocean</option>
+                        <option value="forest">Forest</option>
+                        <option value="sunset">Sunset</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hue-offset">Hue Shift: <span id="hue-value">0°</span></label>
+                    <input type="range" id="hue-offset" min="0" max="360" step="1" value="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="saturation">Saturation: <span id="saturation-value">100%</span></label>
+                    <input type="range" id="saturation" min="0" max="1" step="0.01" value="1.0">
+                </div>
+            </section>
+
+            <!-- Animation Parameters -->
+            <section class="card">
+                <h2>⚡ Animation Parameters</h2>
+                <div class="form-group">
+                    <label for="speed">Speed: <span id="speed-value">1.0x</span></label>
+                    <input type="range" id="speed" min="0.1" max="5.0" step="0.1" value="1.0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="scale">Scale: <span id="scale-value">1.0x</span></label>
+                    <input type="range" id="scale" min="0.1" max="3.0" step="0.1" value="1.0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="brightness-scale">Color Intensity: <span id="brightness-scale-value">100%</span></label>
+                    <input type="range" id="brightness-scale" min="0" max="2" step="0.01" value="1.0">
+                </div>
+            </section>
+
+            <!-- Presets -->
+            <section class="card">
+                <h2>💾 Presets</h2>
+                <div class="form-group">
+                    <select id="preset-select">
+                        <option value="">Select a preset...</option>
+                    </select>
+                    <button id="load-preset" class="btn btn-primary">Load</button>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="preset-name" placeholder="New preset name...">
+                    <button id="save-preset" class="btn btn-secondary">Save Current</button>
+                </div>
+            </section>
+
+            <!-- Live Statistics -->
+            <section class="card">
+                <h2>📊 Live Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Frame Count</div>
+                        <div id="frame-count" class="stat-value">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Uptime</div>
+                        <div id="uptime" class="stat-value">0s</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Matrix Size</div>
+                        <div id="matrix-size" class="stat-value">10x10</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Total Pixels</div>
+                        <div id="total-pixels" class="stat-value">100</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let config = {};
+        let updateTimer = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStatus();
+            loadPresets();
+            setupEventListeners();
+            
+            // Auto-refresh every 2 seconds
+            setInterval(loadStatus, 2000);
+        });
+
+        function setupEventListeners() {
+            // Program controls
+            document.getElementById('load-program').addEventListener('click', loadProgram);
+            document.getElementById('upload-btn').addEventListener('click', uploadProgram);
+            
+            // Settings controls - debounced updates
+            const settingsControls = ['brightness', 'gamma', 'fps', 'hue-offset', 'saturation', 'speed', 'scale', 'brightness-scale'];
+            settingsControls.forEach(id => {
+                const element = document.getElementById(id);
+                element.addEventListener('input', function() {
+                    updateValueDisplay(id, element.value);
+                    debouncedUpdate();
+                });
+            });
+            
+            // Palette selector
+            document.getElementById('palette-select').addEventListener('change', function() {
+                updateConfig({ current_palette: this.value });
+            });
+            
+            // Preset controls
+            document.getElementById('load-preset').addEventListener('click', loadPreset);
+            document.getElementById('save-preset').addEventListener('click', savePreset);
+        }
+
+        function debouncedUpdate() {
+            if (updateTimer) clearTimeout(updateTimer);
+            updateTimer = setTimeout(updateConfigFromForm, 300);
+        }
+
+        function updateValueDisplay(id, value) {
+            const displays = {
+                'brightness': (v) => Math.round(v * 100) + '%',
+                'gamma': (v) => parseFloat(v).toFixed(1),
+                'fps': (v) => v + ' FPS',
+                'hue-offset': (v) => v + '°',
+                'saturation': (v) => Math.round(v * 100) + '%',
+                'speed': (v) => parseFloat(v).toFixed(1) + 'x',
+                'scale': (v) => parseFloat(v).toFixed(1) + 'x',
+                'brightness-scale': (v) => Math.round(v * 100) + '%'
+            };
+            
+            const displayElement = document.getElementById(id + '-value');
+            if (displayElement && displays[id]) {
+                displayElement.textContent = displays[id](value);
+            }
+        }
+
+        async function loadStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('Status error:', data.error);
+                    return;
+                }
+                
+                // Update status display
+                document.getElementById('status').textContent = data.running ? 'Running' : 'Stopped';
+                document.getElementById('fps').textContent = data.fps || 0;
+                document.getElementById('current-program').textContent = data.current_program || 'cosmic';
+                document.getElementById('frame-count').textContent = data.frame_count || 0;
+                document.getElementById('uptime').textContent = formatUptime(data.uptime || 0);
+                
+                // Update programs list
+                const programSelect = document.getElementById('program-select');
+                programSelect.innerHTML = '';
+                (data.programs || ['cosmic']).forEach(program => {
+                    const option = document.createElement('option');
+                    option.value = program;
+                    option.textContent = program === 'cosmic' ? 'Cosmic (Built-in)' : program;
+                    if (program === data.current_program) option.selected = true;
+                    programSelect.appendChild(option);
+                });
+                
+                // Update configuration
+                if (data.config) {
+                    config = data.config;
+                    updateFormFromConfig();
+                }
+                
+                // Update matrix info
+                if (data.config) {
+                    const width = data.config.matrix_width || 10;
+                    const height = data.config.matrix_height || 10;
+                    document.getElementById('matrix-size').textContent = `${width}x${height}`;
+                    document.getElementById('total-pixels').textContent = width * height;
+                }
+                
+            } catch (error) {
+                console.error('Failed to load status:', error);
+                document.getElementById('status').textContent = 'Error';
+            }
+        }
+
+        function updateFormFromConfig() {
+            if (!config) return;
+            
+            // Update sliders without triggering events
+            const elements = {
+                'brightness': config.brightness,
+                'gamma': config.gamma,
+                'fps': config.fps,
+                'hue-offset': config.hue_offset,
+                'saturation': config.saturation,
+                'speed': config.speed,
+                'scale': config.scale,
+                'brightness-scale': config.brightness_scale
+            };
+            
+            Object.entries(elements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element && value !== undefined) {
+                    element.value = value;
+                    updateValueDisplay(id, value);
+                }
+            });
+            
+            // Update palette selector
+            const paletteSelect = document.getElementById('palette-select');
+            if (config.current_palette) {
+                paletteSelect.value = config.current_palette;
+            }
+        }
+
+        function updateConfigFromForm() {
+            const updates = {
+                brightness: parseFloat(document.getElementById('brightness').value),
+                gamma: parseFloat(document.getElementById('gamma').value),
+                fps: parseInt(document.getElementById('fps').value),
+                hue_offset: parseFloat(document.getElementById('hue-offset').value),
+                saturation: parseFloat(document.getElementById('saturation').value),
+                speed: parseFloat(document.getElementById('speed').value),
+                scale: parseFloat(document.getElementById('scale').value),
+                brightness_scale: parseFloat(document.getElementById('brightness-scale').value)
+            };
+            
+            updateConfig(updates);
+        }
+
+        async function updateConfig(updates) {
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    console.error('Config update error:', data.error);
+                }
+            } catch (error) {
+                console.error('Failed to update config:', error);
+            }
+        }
+
+        async function loadProgram() {
+            const programName = document.getElementById('program-select').value;
+            try {
+                const response = await fetch('/api/program', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ program: programName })
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    alert('Error loading program: ' + data.error);
+                } else {
+                    document.getElementById('current-program').textContent = programName;
+                }
+            } catch (error) {
+                alert('Failed to load program: ' + error.message);
+            }
+        }
+
+        async function uploadProgram() {
+            const fileInput = document.getElementById('program-upload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a Python file to upload');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    alert('Upload error: ' + data.error);
+                } else {
+                    alert('Program uploaded successfully: ' + data.program_name);
+                    loadStatus(); // Refresh to show new program
+                    fileInput.value = ''; // Clear file input
+                }
+            } catch (error) {
+                alert('Failed to upload program: ' + error.message);
+            }
+        }
+
+        async function loadPresets() {
+            try {
+                const response = await fetch('/api/presets');
+                const data = await response.json();
+                
+                const presetSelect = document.getElementById('preset-select');
+                presetSelect.innerHTML = '<option value="">Select a preset...</option>';
+                
+                (data.presets || []).forEach(preset => {
+                    const option = document.createElement('option');
+                    option.value = preset;
+                    option.textContent = preset;
+                    presetSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to load presets:', error);
+            }
+        }
+
+        async function loadPreset() {
+            const presetName = document.getElementById('preset-select').value;
+            if (!presetName) return;
+            
+            try {
+                const response = await fetch('/api/presets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'load', name: presetName })
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    alert('Error loading preset: ' + data.error);
+                } else {
+                    alert('Preset loaded: ' + presetName);
+                    loadStatus(); // Refresh to show updated config
+                }
+            } catch (error) {
+                alert('Failed to load preset: ' + error.message);
+            }
+        }
+
+        async function savePreset() {
+            const presetName = document.getElementById('preset-name').value.trim();
+            if (!presetName) {
+                alert('Please enter a preset name');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/presets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save', name: presetName })
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    alert('Error saving preset: ' + data.error);
+                } else {
+                    alert('Preset saved: ' + presetName);
+                    document.getElementById('preset-name').value = '';
+                    loadPresets(); // Refresh presets list
+                }
+            } catch (error) {
+                alert('Failed to save preset: ' + error.message);
+            }
+        }
+
+        function formatUptime(seconds) {
+            if (seconds < 60) return Math.round(seconds) + 's';
+            if (seconds < 3600) return Math.round(seconds / 60) + 'm';
+            if (seconds < 86400) return Math.round(seconds / 3600) + 'h';
+            return Math.round(seconds / 86400) + 'd';
+        }
+    </script>
+</body>
+</html>

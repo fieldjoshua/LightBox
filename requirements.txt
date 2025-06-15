@@ -1,0 +1,26 @@
+# CosmicLED Dependencies for Raspberry Pi
+# Install with: pip install -r requirements.txt
+
+# Core LED control
+adafruit-blinka>=8.0.0
+adafruit-circuitpython-neopixel>=6.0.0
+RPi.GPIO>=0.7.1
+
+# Web interface
+Flask>=2.3.0
+Flask-CORS>=4.0.0
+
+# Image processing and fonts
+Pillow>=10.0.0
+
+# System monitoring
+psutil>=5.9.0
+
+# Scientific computing (for animations)
+numpy>=1.24.0
+
+# Optional OLED display support
+adafruit-circuitpython-ssd1306>=2.12.0
+
+# Development and testing
+pytest>=7.4.0
