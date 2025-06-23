@@ -132,7 +132,7 @@ When the user requests work:
 - **Brightness Control**: Uses single `config.brightness` parameter (0.0-1.0) - the old `brightness_scale` parameter has been removed to simplify controls
 - **Port Configuration**: Web server port is configurable via `config.web_port` (default 5001) to avoid conflicts with system services
 - **Error Handling**: Color values must be in range 0-255; "byte must be in range(0, 256)" errors indicate color calculation issues
-- **GPIO Pin Configuration**: LED data pin is GPIO18 (configurable), uses WS2811/NeoPixel protocol
+- **GPIO Pin Configuration**: LED data pin is GPIO12 (as per hardware setup), uses WS2811/NeoPixel protocol
 - **Simulation Mode**: System can run without hardware for development (automatically detected)
 
 ## Technology Stack

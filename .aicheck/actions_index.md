@@ -17,6 +17,7 @@
 | Action | Author | Completed | Notes |
 |--------|--------|-----------|-------|
 | WebGuiSettingsInvestigation | | 2025-06-23 | |
+| WebGuiSettingsInvestigation | | 2025-06-23 | |
 | LightBoxWorkspace | | 2025-06-15 | |
 | LightBoxWorkspace | | 2025-06-15 | |
 | *None yet* | | | |
