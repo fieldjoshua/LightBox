@@ -1,223 +1,181 @@
-# AICheck v6.0.0 - Goal-Driven AI Development Governance
+# LightBox - LED Matrix Animation System
 
-**🚀 Curated human oversight ⟷ effective automation.**
+A sophisticated LED matrix control system for Raspberry Pi with web interface, dynamic animation loading, and real-time parameter control.
 
-## ✨ What's New in v6.0.0
+## Features
 
-### 🔄 **NEW: Auto-Iterate Mode**
-- **Goal-Driven Development** - AI editor proposes specific, measurable goals
-- **Human Approval Gates** - No iteration or commits without explicit approval  
-- **Test-Fix-Test Cycles** - Automated iteration until goals are achieved
-- **Action Integration** - Templates automatically added to active actions
-- **Comprehensive Tracking** - Detailed logs, summaries, and git approval workflow
+- **10x10 WS2811/NeoPixel LED Matrix** - High-performance animation display
+- **Web-Based Control** - Modern responsive interface accessible from any device
+- **Dynamic Animation System** - Hot-swappable animation programs with metadata
+- **Real-Time Parameter Control** - Live brightness, speed, color, and effect adjustments
+- **Hardware Integration** - GPIO buttons, OLED display, and sensor support
+- **Preset Management** - Save and recall complete configuration states
+- **Production Ready** - Optimized for Raspberry Pi deployment
 
-### 🔧 **Enhanced MCP Integration** 
-- **Smart Configuration** - Automatically handles multiple AICheck projects in Claude
-- **Conflict Resolution** - Unique server names prevent MCP tool conflicts
-- **Diagnostic Testing** - Built-in MCP server validation during installation
-- **Better Troubleshooting** - Clear error messages and fix instructions
+## Quick Start
 
-### 🎯 **v5.0.0 Features** 
-- **Just 9 Essential Commands** - Simplified from 20+ to what you actually use
-- **deploy Command** - One-stop pre-deployment validation
-- **Unified Dependency Management** - Works seamlessly with Poetry/npm
-- **Enhanced Automation** - Pre-push hooks, dependency guardian, auto-cleanup
-- **Clear ACTION vs ActiveAction** - No more confusion about context switching
-
-### 🛡️ **Dependency Guardian**
-- **Pre-push Verification** - Never push broken dependencies again
-- **Lock File Checking** - Ensures poetry.lock/package-lock.json are synced
-- **Import Validation** - Verifies all imports are in dependencies
-- **Auto-fix Command** - `./aicheck deps fix` resolves common issues
-
-### 🔌 **MCP Integration**
-- **Automatic Configuration** - Installer sets up Claude integration
-- **Native Tool Access** - All AICheck features available in Claude
-- **No Manual Setup** - Just restart Claude after installation
-
-## 🚀 Installation
-
+### Installation
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install_v6.sh)
+# Clone the repository
+git clone https://github.com/fieldjoshua/LightBox.git
+cd LightBox
+
+# Run automated setup (Raspberry Pi)
+bash LightBox/setup.sh
+
+# Or minimal setup (Pi Zero W)
+bash LightBox/setup-minimal.sh
 ```
 
-That's it! The installer will:
-- Download and set up AICheck v6.0.0
-- Configure MCP server for Claude Code integration
-- Handle multiple projects in Claude automatically
-- Install templates and documentation
-- Set up activation script
-- Test the installation and MCP server
-
-## 🎯 **Your Commands**
-
+### Running the System
 ```bash
-./aicheck status       # Show detailed status
-./aicheck focus        # Check for scope creep  
-./aicheck stuck        # Get unstuck when confused
-./aicheck deploy       # Pre-deployment validation
-./aicheck auto-iterate # NEW: Goal-driven test-fix-test cycles
-./aicheck new          # Create a new action
-./aicheck ACTIVE       # Set the ACTIVE action
-./aicheck complete     # Complete the ACTIVE action
-./aicheck cleanup      # Optimize and fix compliance
-./aicheck usage        # See AI usage and costs
+# Activate virtual environment
+source LightBox/venv/bin/activate
+
+# Run with hardware (requires sudo for GPIO)
+sudo python3 LightBox/Conductor.py
+
+# Or run in simulation mode (development)
+python3 LightBox/run_simulation.py
 ```
 
-**Note:** The longer forms still work (e.g., `./aicheck action new`), but these shortcuts are faster!
+### Web Interface
+- **Production**: http://192.168.0.222:5001
+- **Local Development**: http://localhost:5001
 
-## 🚀 **What is deploy?**
+## Architecture
 
-`./aicheck deploy` runs a comprehensive pre-deployment validation:
+### Core Components
+- **Conductor.py** - Main orchestrator coordinating all system components
+- **config.py** - Configuration management with settings persistence
+- **webgui/app.py** - Flask web interface with REST API
+- **scripts/** - Animation programs with plugin architecture
 
-1. **Dependency Check**
-   - ✅ Lock files committed (poetry.lock, package-lock.json)
-   - ✅ All imports have corresponding dependencies
-   - ✅ No missing packages
-
-2. **Test Suite**
-   - ✅ Runs all tests (pytest for Python, npm test for Node.js)
-   - ✅ Ensures zero test failures
-
-3. **Git Status**
-   - ✅ Shows uncommitted changes
-   - ✅ Warns about untracked files
-
-If everything passes, you'll see: **"✅ Ready to deploy!"**  
-If something fails, it tells you exactly what to fix.
-
-## 🔄 **NEW: Auto-Iterate Mode**
-
-Auto-iterate mode enables goal-driven test-fix-test cycles with human oversight:
-
-### **How It Works**
-1. **Goal Definition** - AI editor analyzes test failures and proposes specific goals
-2. **Human Approval** - You review and approve goals before any iteration begins  
-3. **Automated Cycles** - System iterates toward approved goals with periodic checkpoints
-4. **Git Approval** - Human approval required before committing any changes
-
-### **Auto-Iterate Workflow**
-```bash
-# Prerequisites: Have an active action
-./aicheck status                    # Verify you have an active action
-
-# Auto-iterate process (integrates with active action)
-./aicheck auto-iterate             # Step 1: AI proposes goals + adds template
-./aicheck auto-iterate --approve   # Step 2: Human approves goals
-./aicheck auto-iterate --execute   # Step 3: Goal-driven iteration cycles
-# Step 4: Git commit approval happens automatically at session end
+### Animation System
+Animation programs are Python files with a simple interface:
+```python
+def animate(pixels, config, frame):
+    # Modify pixels array directly
+    # Use config for parameters (brightness, speed, colors)
+    # Use frame for timing-based animations
 ```
 
-### **Key Features**
-- **No New Actions Required** - Integrates seamlessly with your active action
-- **Template Auto-Added** - Session template automatically added to action directory
-- **Goal-Driven** - AI must propose specific, measurable objectives before starting
-- **Human Control** - Approval gates for goals and git commits
-- **Complete Tracking** - Comprehensive logs, summaries, and change documentation
-- **Rollback Safety** - Discard option available at any stage
+Built-in animations include:
+- **aurora** - Northern lights simulation
+- **cosmic_nebulas** - Deep space particle effects  
+- **hypnotic_cosmos** - Mesmerizing spiral patterns
+- **plasma_field** - Fluid plasma simulation
+- **matrix_test** - Hardware testing and diagnostics
 
-### **Example Auto-Iterate Goals**
-- Fix all ImportError issues by updating dependencies  
-- Resolve syntax errors in test files
-- Make failing assertion tests pass by correcting logic
-- Achieve 100% test pass rate with no regressions
+## Hardware Requirements
 
-## 🔄 **Typical Development Flow**
+- **Raspberry Pi 4** (recommended) or Pi Zero W
+- **10x10 WS2811/NeoPixel LED Matrix**
+- **5V Power Supply** (60W+ recommended)
+- **GPIO Connection**: Data pin to GPIO12
+- **Optional**: OLED display, control buttons
 
-### **Standard Flow**
-1. **Create:** `./aicheck new FixLoginBug`
-2. **Activate:** `./aicheck ACTIVE FixLoginBug`
-3. **Work on code...**
-4. **Check:** `./aicheck deploy`
-5. **Push:** `git push`
-6. **Done:** `./aicheck complete`
+## API Endpoints
 
-### **With Auto-Iterate** (for complex test failures)
-1. **Create:** `./aicheck new FixComplexBug`
-2. **Activate:** `./aicheck ACTIVE FixComplexBug`
-3. **Auto-Iterate:** `./aicheck auto-iterate` → approve goals → execute
-4. **Check:** `./aicheck deploy`
-5. **Push:** `git push`
-6. **Done:** `./aicheck complete`
+### System Control
+- `GET /api/status` - System status and configuration
+- `POST /api/config` - Update animation parameters
+- `POST /api/program` - Switch animation programs
 
-## 👤 **Curated Human Oversight ⟷ Effective Automation** 🤖
+### Program Management  
+- `GET /api/program/<name>/info` - Get program metadata
+- `POST /api/upload` - Upload new animation scripts
+- `GET /api/presets` - List configuration presets
+- `POST /api/presets` - Save/load presets
 
-### **Automated (No Approval Needed)**
-- Session startup checks and status summaries
-- Log archiving and context optimization  
-- Auto-creation of missing documentation structure
-- Timestamp and progress tracking updates
-- Context pollution detection and scoring
+## Development
 
-### **Human Approval Required**
-- Destructive context cleanup operations
-- Creating new actions when scope creep detected
-- Proceeding with high context pollution (>30 score)
-- Force removal of multiple active actions
-
-### **Smart Warnings (Continue or Stop)**
-- Dependency changes without documentation
-- Implementation without corresponding tests
-- Working outside current action scope
-- Action plans older than 7 days
-
-## 📊 **RULES Compliance Features**
-
-AICheck v5.0.0 automatically validates and enforces:
-
-- **Action Management:** Status tracking, progress updates, timeline management
-- **Dependency Tracking:** External and internal dependency documentation  
-- **Documentation Standards:** Required plan sections, AI interaction logging
-- **Test Coverage:** TDD compliance validation and test file verification
-- **File Organization:** Proper documentation migration, action isolation
-- **Git Integration:** Commit message format, dependency change detection
-
-## 🛠 **Advanced Features**
-
-### **Context Management**
-- **Pollution Detection:** 0-100 scoring system with automatic recommendations
-- **Boundary Enforcement:** Prevents scope creep and action conflicts
-- **Cost Optimization:** Usage analysis and context efficiency optimization
-
-### **MCP Integration**  
-- **Native AI Assistant Integration:** Seamless tool access via MCP protocol
-- **Resource Exposure:** Direct access to rules, actions, and status
-- **Tool Automation:** All automation features available programmatically
-
-### **Templates & Patterns**
-- **Structured Prompts:** Auto-surgical-fix, research-plan-implement, auto-TDD-cycle
-- **Cost-Efficient Development:** Budget-aware workflows and optimization
-- **Proven Patterns:** Battle-tested templates for common development tasks
-
-## 📚 **Documentation & Support**
-
-- **RULES.md** - Full governance rules (v5.0)
-- **QUICK_START.md** - Quick command reference
-- **CHANGELOG_v5.md** - What's new in v5.0.0
-- **GitHub Issues** - Report bugs or request features
-
-## 🎯 **Perfect For**
-
-- **AI-Assisted Development** with Claude Code, Cursor, or similar tools
-- **Team Projects** requiring consistent development practices  
-- **Complex Codebases** where scope management is critical
-- **Cost-Conscious Development** with usage tracking and optimization
-- **Compliance-Heavy Projects** requiring documentation and audit trails
-
-## 🚀 **Get Started Now**
-
+### Local Development
 ```bash
-# Install AICheck in your project directory
-bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh)
+# Install dependencies
+pip install -r LightBox/requirements.txt
 
-# Restart Claude to load MCP integration
+# Run tests
+pytest
 
-# Start working
-./aicheck stuck
-
-# You're ready to go! 🎉
+# Run simulation mode for development
+python3 LightBox/run_simulation.py
 ```
 
----
+### Creating Animations
+1. Create Python file in `LightBox/scripts/`
+2. Implement `animate(pixels, config, frame)` function
+3. Add optional `ANIMATION_INFO` metadata dict
+4. Upload via web interface or place file directly
 
-**Built for AI-Assisted Development | Curated Oversight | Effective Automation | Production Ready**
+### Diagnostics
+```bash
+# GPIO diagnostics
+python3 LightBox/diagnose_gpio.py
+
+# System health check
+python3 LightBox/diagnose.py
+
+# LED hardware test
+python3 LightBox/scripts/matrix_test.py
+```
+
+## Configuration
+
+Key configuration options in `config.py`:
+- **Matrix dimensions**: 10x10 (configurable)
+- **Web port**: 5001 (configurable via `config.web_port`)
+- **GPIO pin**: GPIO12 for LED data
+- **Brightness**: 0.0-1.0 scale
+- **Frame rate**: Optimized for hardware (15 FPS default)
+
+## Production Deployment
+
+### SSH Access
+```bash
+ssh fieldjoshua@192.168.0.222
+```
+
+### Start/Stop System
+```bash
+# Start system
+sudo python3 LightBox/Conductor.py
+
+# Stop system (Ctrl+C or kill process)
+```
+
+### Service Notes
+- systemd service has permission issues
+- Use direct sudo execution for production
+- Changes require system restart to take effect
+
+## Troubleshooting
+
+### Common Issues
+- **"byte must be in range(0, 256)"** - Check color calculations in animations
+- **GPIO conflicts** - Run `diagnose_gpio.py` to identify library conflicts
+- **Permission errors** - Ensure user in gpio group or use sudo
+- **LED not responding** - Check wiring and run matrix_test.py
+
+### Performance
+- Optimized for Pi 4, compatible with Pi Zero W
+- Memory usage monitored and optimized
+- Frame rate adjustable based on hardware capabilities
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Follow the animation program interface
+4. Test on hardware when possible  
+5. Submit a pull request
+
+## Links
+
+- **GitHub**: https://github.com/fieldjoshua/LightBox
+- **Web Interface**: http://192.168.0.222:5001
+- **Documentation**: See CLAUDE.md for detailed architecture notes
