@@ -34,12 +34,13 @@ Claude should follow the rules specified in `.aicheck/RULES.md` with focus on do
 - **Initial setup**: `bash LightBox/setup.sh` (automated installation for Raspberry Pi)
 - **Minimal setup**: `bash LightBox/setup-minimal.sh` (for Pi Zero W)
 - **Activate environment**: `source LightBox/venv/bin/activate`
-- **Run LED controller**: `sudo python3 LightBox/CosmicLED.py` (requires root for GPIO access)
+- **Run LED controller**: `sudo python3 LightBox/Conductor.py` (requires root for GPIO access)
+- **Simulation mode**: `python3 LightBox/run_simulation.py` (development without hardware)
 - **Web interface**: Access at <http://localhost:5001> when running (configurable via config.web_port)
-- **Install dependencies**: `pip install -r LightBox/requirements.txt`
-- **Testing**: `pytest` (when tests are implemented)
+- **Install dependencies**: `pip install -r LightBox/requirements.txt` or `pip install -r LightBox/requirements-minimal.txt`
+- **Testing**: `pytest` or `python -m pytest tests/` 
 - **Hardware test**: `python3 LightBox/scripts/matrix_test.py` to verify LED wiring
-- **System service**: `sudo systemctl enable/start/stop lightbox.service`
+- **Production deployment**: Run directly with `sudo python3 LightBox/Conductor.py` (systemd service has permission issues)
 
 ## Diagnostic and Debugging Tools
 
@@ -52,9 +53,9 @@ Claude should follow the rules specified in `.aicheck/RULES.md` with focus on do
 
 ### Core Components
 
-- **CosmicLED.py**: Main animation engine that manages LED strip control, animation programs, and real-time parameter updates
+- **Conductor.py**: Main orchestrator that initializes and coordinates all system components including hardware, animation loop, and web interface
 - **config.py**: Configuration management with settings persistence, color palettes, and matrix coordinate mapping
-- **webgui/app.py**: Flask web interface providing REST API for remote control and real-time monitoring
+- **webgui/app.py**: Flask web interface providing REST API for remote control and real-time monitoring with enhanced program metadata
 
 ### Animation System
 
@@ -62,7 +63,7 @@ The project uses a plugin-based animation system:
 
 - Animation programs are Python files in `LightBox/scripts/` with an `animate(pixels, config, frame)` function
 - Programs receive pixel array, configuration object, and frame counter
-- Built-in animations include: aurora, clouds, feathers, hypnotic_cosmos, matrix_test, and more
+- Built-in animations include: aurora, clouds, feathers, hypnotic_cosmos, matrix_test, cosmic_nebulas, and more
 - Dynamic program loading allows hot-swapping animations without restart
 - **Animation Function Signature**: `def animate(pixels, config, frame):`
   - `pixels`: RGB array to modify directly (tuple/list format)
@@ -70,6 +71,21 @@ The project uses a plugin-based animation system:
   - `frame`: Integer frame counter for timing-based animations
 - **Matrix Coordinate Conversion**: Use `config.xy_to_index(x, y)` for 2D positioning
 - **Color Validation**: Ensure RGB values are integers 0-255 to avoid "byte range" errors
+- **Animation Metadata**: Programs can include `ANIMATION_INFO` dict with metadata for dynamic web GUI controls:
+  ```python
+  ANIMATION_INFO = {
+      'name': 'Display Name',
+      'description': 'Brief description of the animation',
+      'version': '1.0',
+      'author': 'Author Name',
+      'parameters': {
+          'speed': 'Description of speed parameter (range info)',
+          'scale': 'Description of scale parameter (range info)'
+      },
+      'features': ['List of animation features'],
+      'cycle_info': {'timing_details': 'if applicable'}
+  }
+  ```
 
 ### Hardware Integration
 
@@ -89,12 +105,20 @@ The project uses a plugin-based animation system:
 
 Flask app provides RESTful endpoints:
 
-- `/api/status` - System status and current configuration
+- `/api/status` - System status and current configuration with program metadata
 - `/api/config` - Update animation parameters
 - `/api/program` - Switch animation programs
+- `/api/program/<name>/info` - Get detailed program information including metadata
 - `/api/upload` - Upload new animation scripts
 - `/api/palette` - Color palette management
 - `/api/presets` - Configuration preset management
+
+### Enhanced Web GUI Features
+
+- **Dynamic Program Information**: Program cards display version, description, author, and features
+- **Program Info Modal**: Detailed view showing parameters, features, timing info, and file details
+- **Metadata Extraction**: Automatically reads `ANIMATION_INFO` from animation scripts
+- **Version Display**: Shows program versions in UI (e.g., "Enhanced Cosmic Nebulas v2.0")
 
 ## Dependency Management
 
@@ -142,13 +166,16 @@ When the user requests work:
 - **Hardware Libraries**: adafruit-blinka, adafruit-circuitpython-neopixel, RPi.GPIO
 - **Web Framework**: Flask with CORS support
 - **Dependencies**: NumPy (math), Pillow (images), psutil (system monitoring)
+- **Package Management**: pyproject.toml with setuptools build system
+- **Testing Framework**: pytest with coverage support
 
 ## System Integration
 
-- **GPIO Permissions**: User must be in gpio group for hardware access
-- **Systemd Service**: `lightbox.service` for auto-start on boot
-- **Performance**: Memory limit 512M, CPU quota 80% when running as service
-- **Deployment**: Optimized for Pi 4, compatible with Pi Zero W (use minimal setup)
+- **GPIO Permissions**: Requires root access via sudo for GPIO control
+- **Production Deployment**: Run directly with `sudo python3 LightBox/Conductor.py` 
+- **SSH Access**: Production Pi accessible at `fieldjoshua@192.168.0.222`
+- **Performance**: Optimized for Pi 4, compatible with Pi Zero W (use minimal setup)
+- **Service Note**: systemd service has permission issues, use direct sudo execution instead
 
 ## Common Issues and Troubleshooting
 
@@ -168,3 +195,11 @@ When the user requests work:
 - **Port conflicts**: Default port 5001 configurable via `config.web_port`
 - **CORS errors**: Flask app includes CORS support for cross-origin requests
 - **Upload failures**: Check file permissions in upload directory
+- **Changes not visible**: Restart Conductor.py to reload Flask app changes and new animation metadata
+
+### Production Deployment
+- **Start system**: SSH to Pi and run `sudo python3 LightBox/Conductor.py`
+- **Stop system**: Use Ctrl+C or kill the process
+- **Web GUI access**: Production typically at `http://192.168.0.222:5001`
+- **Code deployment**: Changes must be deployed to Pi and system restarted to take effect
+- **Service issues**: systemd service has permission problems, use direct execution

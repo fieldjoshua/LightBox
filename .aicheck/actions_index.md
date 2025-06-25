@@ -1,11 +1,12 @@
 # Actions Index
 
-*Last Updated: 2025-06-23*
+*Last Updated: 2025-06-24*
 
 ## Active Actions
 
 | Action | Author | Status | Progress | Notes |
 |--------|--------|--------|----------|-------|
+| NebulaScript | | Not Started | 0% | |
 | WebGuiFixCleanup | | Not Started | 0% | |
 | WebGuiSettingsInvestigation | | Not Started | 0% | |
 | ProductionDeployment | | Not Started | 0% | |
