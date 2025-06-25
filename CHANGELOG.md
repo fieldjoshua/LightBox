@@ -1,132 +1,112 @@
-# AICheck Changelog
+# LightBox Changelog
 
-All notable changes to the AICheck system are documented here.
+All notable changes to the LightBox LED Matrix Animation System are documented here.
 
-## [4.1.0] - 2025-05-28
+## [2.0.0] - 2025-06-25
 
-### ✨ Enhanced Installation System
-- **Repository Consolidation**: Automated cleanup of .DS_Store files, backup organization, session management
-- **Remote Installation**: Direct installation from GitHub repository with `--remote` flag
-- **Fresh Installation Mode**: Complete reinstallation with `--fresh` flag  
-- **Verbose Logging**: Detailed output for troubleshooting with `--verbose` flag
-- **Command-line Arguments**: Full argument parsing with help system
-- **Enhanced README**: Comprehensive documentation auto-generated during installation
-- **Security Improvements**: Automatic file permission fixing
-- **Installation Summary**: Configuration details and next steps
+### ✨ Major Architecture Overhaul
+- **Conductor.py**: New main orchestrator replacing CosmicLED.py for better component coordination
+- **Enhanced Web GUI**: Program metadata display with version info, descriptions, and features
+- **Animation Metadata System**: `ANIMATION_INFO` dict support for dynamic web controls
+- **Production Deployment**: Streamlined deployment process with direct sudo execution
+- **Comprehensive Documentation**: Updated CLAUDE.md with detailed architecture and troubleshooting
 
-### 🔧 Installation Commands
-```bash
-.aicheck/install.sh                    # Standard installation
-.aicheck/install.sh --remote           # Install from GitHub
-.aicheck/install.sh --consolidate      # Cleanup repository
-.aicheck/install.sh --fresh --verbose  # Fresh install with logging
-.aicheck/install.sh --help             # Show help
-```
+### 🎨 Animation Enhancements
+- **Enhanced Cosmic Nebulas v2.0**: Improved particle system with better performance
+- **New Animations**: Added zen_garden, organic_flow, symmetry patterns
+- **BPM-Synchronized Effects**: Music sync animations (feathers_bpm, plasma_bpm)
+- **Animation Versioning**: Version tracking in program metadata
+- **Parameter Documentation**: Detailed parameter descriptions in animation info
 
-## [4.0.0] - 2025-05-27
+### 🌐 Web Interface Improvements
+- **Program Info Modal**: Detailed program information with metadata display
+- **Dynamic Program Cards**: Show version, author, description, and features
+- **Enhanced API**: New `/api/program/<name>/info` endpoint for program metadata
+- **Real-time Updates**: Improved settings synchronization between web and hardware
+- **Responsive Design**: Better mobile compatibility and modern UI
 
-### 🚀 Major Release - AICheck System Overhaul
+### 🔧 System Improvements
+- **Port Configuration**: Configurable web port (default 5001) to avoid macOS conflicts
+- **Simulation Mode**: Development mode without hardware requirements
+- **GPIO Diagnostics**: Enhanced diagnostic tools for hardware troubleshooting
+- **Error Handling**: Better color validation and "byte range" error prevention
+- **Performance Optimization**: Frame rate and memory usage improvements for Pi Zero W
 
-#### ✨ New Features
-- **Streamlined RULES.md**: 33% more concise while preserving all core principles
-- **Enhanced CLI Tool**: 10 comprehensive commands with validation and testing
-- **Universal Automation**: Security validation, action management, system testing
-- **Advanced Action Management**: Status/progress tracking with visual indicators
-- **Comprehensive Security**: Path validation, input sanitization, secure logging
-- **System Testing Suite**: Validates AICheck functionality (not project code)
+### 🛠️ Development Tools
+- **Diagnostic Suite**: gpio_diagnose.py, diagnose.py, led_debug.py
+- **Testing Framework**: pytest integration with coverage support
+- **Setup Scripts**: Automated installation for Pi 4 and Pi Zero W
+- **Virtual Environment**: Isolated Python environment in LightBox/venv/
+- **Requirements Split**: Full and minimal requirement sets
 
-#### 🛡️ Security Features
-- **Input Sanitization**: Automatic cleaning of user inputs
-- **Path Validation**: Prevention of directory traversal attacks
-- **Secure File Creation**: Proper permissions (600) for sensitive files
-- **Security Event Logging**: Automatic logging of security events
-- **Action Name Validation**: Enforce kebab-case naming
+### 🐛 Bug Fixes
+- **Service Permissions**: Resolved systemd service GPIO permission issues
+- **Color Range Validation**: Fixed "byte must be in range(0, 256)" errors
+- **GPIO Conflicts**: Better detection and resolution of library conflicts
+- **Web GUI Sync**: Fixed settings synchronization between interface and hardware
+- **Memory Leaks**: Improved memory management in animation loops
 
-#### 🔧 Enhanced CLI Commands
-```bash
-aicheck create-action <name>           # Create with validation
-aicheck status                         # Comprehensive dashboard
-aicheck update-status <name> <status>  # Update action status
-aicheck update-progress <name> <0-100> # Progress tracking
-aicheck complete-action <name>         # Complete and move to completed/
-aicheck validate                       # Validate system structure
-aicheck test                          # Run system tests
-aicheck security-check               # Security validation
-aicheck list                         # List all actions
-aicheck help                         # Show help
-```
+### 📚 Documentation
+- **Architecture Guide**: Comprehensive system architecture documentation
+- **API Reference**: Complete REST API endpoint documentation
+- **Troubleshooting**: Common issues and solutions guide
+- **Development Workflow**: Setup and development process documentation
+- **Production Deployment**: SSH access and deployment procedures
 
-#### 📋 Core Scripts Added
-- `scripts/security.sh` - Path validation, input sanitization, secure logging
-- `scripts/action_advanced.sh` - Enhanced action management with validation
-- `scripts/aicheck_test.sh` - Comprehensive system testing
-- `aicheck` - Main CLI tool with all features
-- `install.sh` - Complete installation automation
+## [1.5.0] - 2025-05-15
 
-#### 📖 Documentation Improvements
-- **Quick Navigation**: Added to RULES.md for better usability
-- **QUICK_REFERENCE.md**: One-page cheat sheet for common operations
-- **RULES_IMPROVEMENTS.md**: Detailed comparison of changes
-- **Enhanced Visual Standards**: Progress bars, status indicators, emojis
+### 🎨 Animation System
+- **Plugin Architecture**: Dynamic animation loading system
+- **Built-in Animations**: aurora, clouds, feathers, hypnotic_cosmos
+- **Parameter Control**: Real-time speed, brightness, and color adjustments
+- **Preset Management**: Save and recall complete configuration states
 
-#### 🏗️ Architecture Improvements
-- **Universal Automation**: Works with any project, not project-specific
-- **Modular Design**: Separate scripts for different functionality
-- **Template System**: Ready-to-use action and documentation templates
-- **Git Hook Integration**: Automated completion verification
+### 🌐 Web Interface
+- **Flask Integration**: Modern web interface with REST API
+- **CORS Support**: Cross-origin request handling
+- **Upload System**: Direct animation script upload via web
+- **Mobile Responsive**: Touch-friendly controls for mobile devices
 
-#### ⚡ Performance & Reliability
-- **Comprehensive Testing**: System validates its own functionality
-- **Error Handling**: Proper validation and error reporting
-- **Security Hardening**: Multiple layers of security validation
-- **Progress Tracking**: Visual progress bars and status indicators
+### 🔧 Hardware Integration
+- **WS2811/NeoPixel Support**: 10x10 LED matrix control
+- **GPIO Buttons**: Physical hardware controls
+- **OLED Display**: Status display integration
+- **Raspberry Pi Optimization**: Performance tuning for Pi hardware
 
-### 🔄 Migration Notes
-- All existing actions remain compatible
-- No breaking changes to core workflow
-- New features are additive only
-- Can be adopted gradually
+## [1.0.0] - 2025-04-01
 
-### 💡 Core Principles Preserved
-- Documentation-first approach unchanged
-- Test-driven development enforced
-- Single ActiveAction principle maintained
-- Joshua Field approval requirements intact
-- Action lifecycle process preserved
+### 🚀 Initial Release
+- **Basic LED Control**: Single animation with basic controls
+- **Configuration System**: JSON-based settings persistence
+- **Matrix Mapping**: Serpentine and progressive wiring support
+- **Color Palettes**: Predefined color schemes
+- **Web Server**: Simple Flask interface for remote control
 
-## [3.1.0] - 2025-05-26
-
-### Added
-- **Deployment Verification Requirements**: Mandatory production verification before completion
-- **Critical Warning**: Explicit misrepresentation prevention
-- **Section 6.1.1**: 4-part verification process for production deployments
-
-## [3.0.0] - 2025-05-26
-
-### Added
-- **Section 6.5**: Action Completion Hook with automated git hooks
-- **Git Hook Infrastructure**: Comprehensive completion checker and installation scripts
-- **Automated Verification**: 5-point completion requirement checking
-
-## [2.22.0] - 2025-05-24
-
-### Added
-- **Section 5.3**: Action Lifecycle Organization with completed/ directory
-- **Section 3.4**: Action Consolidation and Conflict Resolution
-- **Section 7.4**: Enhanced Visual Formatting Standards
-- **5-step Directory Migration**: Formal archival system
-- **6-step Consolidation Process**: Structured conflict resolution
-- **Visual Standards**: Emoji-based status indicators and progress bars
+### 🛠️ Core Features
+- **Animation Engine**: Frame-based animation system
+- **Color Management**: HSV color space with gamma correction
+- **Settings Persistence**: JSON configuration file
+- **Hardware Abstraction**: GPIO control with simulation mode
+- **Basic Web API**: Status and configuration endpoints
 
 ---
 
 ## Version Numbering
 
-AICheck follows semantic versioning:
-- **Major (X.0.0)**: Breaking changes or major feature additions
-- **Minor (X.Y.0)**: New features, backwards compatible
-- **Patch (X.Y.Z)**: Bug fixes, minor improvements
+LightBox follows semantic versioning (MAJOR.MINOR.PATCH):
+- **MAJOR**: Incompatible API changes or architecture overhauls
+- **MINOR**: New features and enhancements (backward compatible)
+- **PATCH**: Bug fixes and minor improvements
 
-## Contributing
+## Upgrade Notes
 
-Changes to AICheck require approval from Joshua Field and must follow the documentation-first approach outlined in RULES.md.
+### 2.0.0 Upgrade
+- Replace `CosmicLED.py` calls with `Conductor.py`
+- Update web port from 5000 to 5001 if using defaults
+- Restart system to load new animation metadata features
+- Use direct sudo execution instead of systemd service
+
+### 1.5.0 Upgrade
+- Run setup script to install new dependencies
+- Update animation scripts to use new plugin interface
+- Configure GPIO permissions for hardware access

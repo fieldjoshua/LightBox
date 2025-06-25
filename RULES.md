@@ -1,178 +1,269 @@
-# AICheck Rules (Simplified)
+# LightBox Development Rules
 
-This document defines the governance framework for AICheck-managed projects. These rules cannot be modified without approval from Joshua Field.
+This document defines the development guidelines and standards for the LightBox LED Matrix Animation System.
 
-> **Quick Navigation**: [Core Principles](#1-core-principles) | [Action Workflow](#2-action-workflow) | [AI Guidelines](#3-ai-assistant-guidelines) | [Testing & Deployment](#4-testing-and-deployment) | [Standards](#5-standards) | [Reference](#6-reference)
+> **Quick Navigation**: [Core Principles](#1-core-principles) | [Animation Development](#2-animation-development) | [Web Interface](#3-web-interface-guidelines) | [Hardware Integration](#4-hardware-integration) | [Testing & Deployment](#5-testing-and-deployment) | [Documentation](#6-documentation-standards)
 
 ---
 
 ## 1. CORE PRINCIPLES
 
 ### 1.1 Foundation Rules
-- **One ActiveAction per person** - Complete or pause before switching
-- **Documentation-first approach** - PLAN.md required and approved before implementation
-- **Test-driven development** - Tests created and approved before implementation
-- **Production deployment verification** - "Code complete" ≠ "deployed and working"
+- **Safety First** - All electrical connections and GPIO access must be properly managed
+- **Real-time Performance** - Animation frame rates must be maintained for smooth visual experience
+- **Hardware Compatibility** - Code must work on both Pi 4 and Pi Zero W configurations
+- **Production Reliability** - System must run continuously without intervention
 
-### 1.2 Work Definition
-The PROJECT creates a PROGRAM with specific functions. Each ACTION is a sub-objective contributing to program functionality. EDITORS perform ACTIONS to progress the PROGRAM.
+### 1.2 System Architecture
+The LightBox system consists of:
+- **Hardware Layer**: LED matrix, GPIO controls, sensors
+- **Animation Engine**: Frame-based rendering with plugin architecture
+- **Configuration System**: Persistent settings with real-time updates
+- **Web Interface**: Remote control and monitoring
+- **Diagnostic Tools**: System health and troubleshooting utilities
 
-**Value Creation**: Efficient, quality work that progresses ACTIONS toward completion has the highest value.
+**Value Creation**: Smooth, reliable LED animations with intuitive control interfaces.
 
 ---
 
-## 2. ACTION WORKFLOW
+## 2. ANIMATION DEVELOPMENT
 
-### 2.1 ACTION Lifecycle
+### 2.1 Animation Standards
+- **Function Signature**: All animations must implement `def animate(pixels, config, frame):`
+- **Color Range**: RGB values must be integers in range 0-255
+- **Performance**: Animations must complete within frame time budget (67ms for 15 FPS)
+- **Error Handling**: Graceful degradation for invalid parameters or calculations
+
+### 2.2 Animation Metadata
+```python
+ANIMATION_INFO = {
+    'name': 'Display Name',                    # Required: Human-readable name
+    'description': 'Brief description',        # Required: What the animation does
+    'version': '1.0',                         # Required: Semantic version
+    'author': 'Author Name',                  # Optional: Creator attribution
+    'parameters': {                           # Optional: Parameter descriptions
+        'speed': 'Animation speed (0.1-3.0)',
+        'scale': 'Pattern scale (0.5-2.0)'
+    },
+    'features': ['Color shifting', 'Smooth'], # Optional: Key features list
+    'cycle_info': {                          # Optional: Timing information
+        'period': '30 seconds',
+        'seamless': True
+    }
+}
 ```
-Plan → Approve → Implement → Test → Deploy → Complete
-```
 
-1. **Create**: `./aicheck new [action-name]` with PLAN.md
-2. **Approve**: Human approval of PLAN.md required
-3. **Activate**: `./aicheck active [action-name]`
-4. **Implement**: Follow approved PLAN.md
-5. **Test**: All tests must pass
-6. **Deploy**: Production verification required
-7. **Complete**: `./aicheck complete [action-name]`
+### 2.3 Code Quality Standards
+- **Consistent Style**: Follow PEP 8 Python style guidelines
+- **Comments**: Explain complex mathematical calculations and algorithms
+- **Variable Names**: Use descriptive names (not single letters except for loops)
+- **Magic Numbers**: Define constants for key values (wave lengths, frequencies, etc.)
 
-### 2.2 Required Files
-Every ACTION must contain:
-- **`[action-name]-plan.md`** - Detailed implementation plan
-- **`todo.md`** - Task tracking and progress
-- **`deployment-verification.md`** - Production test evidence (if applicable)
-
-### 2.3 Directory Structure
-```
-.aicheck/actions/[action-name]/
-├── [action-name]-plan.md          # Required: Implementation plan
-├── todo.md                        # Required: Task tracking
-├── deployment-verification.md     # Required: Production evidence
-└── supporting_docs/              # Optional: Process documentation
-    ├── claude-interactions/      # AI assistant logs
-    ├── research/                 # Research and analysis
-    └── process-tests/           # Temporary test files
-```
+### 2.4 Animation Categories
+- **Ambient**: Slow, subtle animations for background mood lighting
+- **Dynamic**: Fast-changing patterns with movement and energy
+- **Reactive**: Animations that respond to external inputs (music, sensors)
+- **Diagnostic**: Testing and calibration animations for hardware validation
 
 ---
 
-## 3. AI ASSISTANT GUIDELINES
+## 3. WEB INTERFACE GUIDELINES
 
-### 3.1 Scope and Boundaries
-- **Follow approved PLAN.md exactly** - No scope creep without human approval
-- **One ACTION focus** - Stay within current ActiveAction boundaries
-- **Human approval required** for:
-  - Plan modifications
-  - New ACTION creation
-  - Production deployments
-  - Major architectural changes
+### 3.1 API Design Principles
+- **RESTful Endpoints**: Use standard HTTP methods and status codes
+- **JSON Format**: All API requests and responses use JSON
+- **Error Handling**: Provide meaningful error messages with proper HTTP status codes
+- **CORS Support**: Enable cross-origin requests for development flexibility
 
-### 3.2 Documentation Requirements
-- **Log interactions** in `supporting_docs/claude-interactions/`
-- **Update todo.md** for all task progress
-- **Document decisions** with rationale
-- **Capture research** in `supporting_docs/research/`
-
-### 3.3 Quality Standards
-- **Test-first approach** - Create/run tests before implementation
-- **Follow code standards** - Maintain consistency with existing codebase
-- **Production verification** - Test actual production URLs, not localhost
-- **Evidence capture** - Document all verification steps
-
----
-
-## 4. TESTING AND DEPLOYMENT
-
-### 4.1 Test-First Requirements
-- Tests must be created and approved via PLAN.md before implementation
-- All tests must pass for ACTION completion
-- Test files organization:
-  - Process tests: `supporting_docs/process-tests/`
-  - Product tests: `/tests/[category]/`
-
-### 4.2 Production Verification Checklist
-**⚠️ MANDATORY for production systems:**
-
-- [ ] Code pushed to correct branch
-- [ ] Deployment triggered successfully
-- [ ] Build completed without errors
-- [ ] **Production URL responds correctly**
-- [ ] **All endpoints tested and documented**
-- [ ] Performance acceptable
-- [ ] Create `deployment-verification.md` with evidence
-- [ ] Document actual production test results
-
-### 4.3 Deployment Evidence
-**Required documentation:**
-- Production URLs tested with timestamps
-- Response/output captured as evidence
-- Error handling verified in production context
-- Platform-specific configuration confirmed
-
----
-
-## 5. STANDARDS
-
-### 5.1 Code Style
-- **Consistency** - Follow existing codebase patterns
-- **Clarity** - Readable, maintainable code
-- **Error handling** - Comprehensive error management
-- **Security** - Follow security best practices
-
-### 5.2 Documentation Format
-- **Markdown** for all documentation
-- **Clear headings** and consistent structure
-- **Actionable content** - specific steps and requirements
-- **Evidence-based** - include examples and proof
-
-### 5.3 Git Workflow
-- **Meaningful commits** - Clear, descriptive messages
-- **Atomic commits** - One logical change per commit
-- **Branch strategy** - Follow project conventions
-- **No force push** to main/master branches
-
----
-
-## 6. REFERENCE
-
-### 6.1 Glossary
-- **PROJECT** - The overall software development initiative
-- **PROGRAM** - The software system being built
-- **ACTION** - A specific work unit with defined objectives
-- **EDITOR** - A person or AI assistant performing work
-- **ActiveAction** - The currently active ACTION for an EDITOR
-- **PLAN** - The detailed implementation strategy for an ACTION
-
-### 6.2 Commands Reference
+### 3.2 Required API Endpoints
 ```bash
-./aicheck new [action-name]      # Create new ACTION
-./aicheck active [action-name]   # Set active ACTION
-./aicheck status                 # Show current status
-./aicheck complete              # Complete active ACTION
-./aicheck focus                 # Check for scope creep
-./aicheck cleanup               # Optimize and fix issues
+GET  /api/status           # System status and current configuration
+POST /api/config           # Update animation parameters
+POST /api/program          # Switch animation programs
+GET  /api/program/<name>/info  # Get program metadata
+POST /api/upload           # Upload new animation scripts
+GET  /api/presets          # List configuration presets
+POST /api/presets          # Save/load configuration presets
 ```
 
-### 6.3 Exception Handling
-**Rule violations require:**
-1. Immediate documentation in ACTION's supporting_docs
-2. Human approval for any deviation
-3. Corrective action plan
-4. Process improvement recommendations
+### 3.3 User Interface Standards
+- **Responsive Design**: Interface must work on mobile devices
+- **Real-time Updates**: Settings changes must be immediately visible
+- **Visual Feedback**: Loading states and confirmation messages
+- **Error Display**: Clear error messages for user actions
 
-**Critical violations** (deployment without verification, scope creep, unapproved changes) may result in ACTION rollback.
+### 3.4 Security Requirements
+- **Input Validation**: Sanitize all user inputs
+- **File Upload Security**: Validate animation script uploads
+- **Rate Limiting**: Prevent API abuse
+- **Safe Defaults**: Fallback to safe configurations on errors
 
 ---
 
-## Migration from Original RULES.md
+## 4. HARDWARE INTEGRATION
 
-This simplified version consolidates the original 16-section, 1,012-line RULES.md into 6 focused sections. All core governance principles are preserved while eliminating redundancy and improving clarity for both human and AI users.
+### 4.1 GPIO Management
+- **Permission Handling**: Use sudo for GPIO access or proper group membership
+- **Pin Configuration**: GPIO12 for LED data, document all pin assignments
+- **Conflict Detection**: Check for GPIO library conflicts and provide diagnostics
+- **Graceful Degradation**: Simulation mode when hardware is unavailable
 
-**Key improvements:**
-- 60% reduction in length
-- Eliminated redundant deployment verification content
-- Consolidated AI assistant guidance
-- Clearer decision trees and workflows
-- Improved navigation and reference structure
+### 4.2 LED Matrix Standards
+- **Matrix Configuration**: Support 10x10 WS2811/NeoPixel as default
+- **Wiring Patterns**: Support both serpentine and progressive wiring
+- **Color Correction**: Apply gamma correction for accurate colors
+- **Brightness Management**: Enforce safe brightness levels to prevent hardware damage
 
-For the complete original rules, see `RULES.md`. This simplified version takes precedence for day-to-day operations.
+### 4.3 Power Management
+- **Current Limiting**: Monitor and limit LED current draw
+- **Thermal Protection**: Implement thermal monitoring if sensors available
+- **Safe Shutdown**: Proper GPIO cleanup on system exit
+- **Startup Sequence**: Initialize hardware in correct order
+
+### 4.4 Optional Hardware Support
+- **OLED Display**: Status information display
+- **Physical Buttons**: Hardware controls for common functions
+- **Sensors**: Temperature, motion, light sensors for reactive animations
+- **Audio Input**: Music synchronization capabilities
+
+---
+
+## 5. TESTING AND DEPLOYMENT
+
+### 5.1 Testing Requirements
+- **Unit Tests**: Test configuration management and utility functions
+- **Hardware Tests**: Validate LED matrix functionality with test patterns
+- **Integration Tests**: Test web API endpoints and animation loading
+- **Performance Tests**: Measure frame rates and system resource usage
+
+### 5.2 Diagnostic Tools
+```bash
+python3 LightBox/diagnose_gpio.py    # GPIO hardware diagnostics
+python3 LightBox/diagnose.py         # System health check
+python3 LightBox/led_debug.py        # LED output debugging
+python3 LightBox/scripts/matrix_test.py  # Hardware test patterns
+```
+
+### 5.3 Deployment Standards
+- **Environment Isolation**: Use virtual environments for dependencies
+- **Service Management**: Direct execution preferred over systemd for GPIO access
+- **Monitoring**: Log system performance and errors
+- **Backup**: Configuration and animation backup procedures
+
+### 5.4 Production Requirements
+- **SSH Access**: Secure remote access for maintenance
+- **Log Management**: Rotate logs to prevent disk space issues
+- **Update Process**: Safe update procedure without breaking running system
+- **Rollback Plan**: Ability to revert to previous working configuration
+
+---
+
+## 6. DOCUMENTATION STANDARDS
+
+### 6.1 Code Documentation
+- **Module Docstrings**: Describe purpose and functionality of each Python module
+- **Function Documentation**: Parameters, return values, and side effects
+- **Inline Comments**: Explain complex algorithms and hardware interactions
+- **Type Hints**: Use Python type hints where appropriate
+
+### 6.2 Animation Documentation
+- **Parameter Descriptions**: Document all configurable parameters
+- **Visual Examples**: Screenshots or videos of animation output when possible
+- **Performance Notes**: Frame rate requirements and optimization tips
+- **Dependencies**: Note any special requirements or limitations
+
+### 6.3 API Documentation
+- **Endpoint Descriptions**: Purpose and usage of each API endpoint
+- **Request/Response Examples**: JSON examples for all endpoints
+- **Error Codes**: Document possible error conditions and responses
+- **Rate Limits**: Any usage restrictions or limitations
+
+### 6.4 Setup Documentation
+- **Installation Instructions**: Step-by-step setup for different Pi models
+- **Hardware Requirements**: Complete bill of materials and wiring diagrams
+- **Configuration Options**: All available settings and their effects
+- **Troubleshooting Guide**: Common issues and solutions
+
+---
+
+## 7. FILE ORGANIZATION
+
+### 7.1 Directory Structure
+```
+LightBox/
+├── Conductor.py              # Main system orchestrator
+├── config.py                 # Configuration management
+├── settings.json             # Runtime settings (not in git)
+├── requirements.txt          # Python dependencies
+├── requirements-minimal.txt  # Minimal deps for Pi Zero W
+├── setup.sh                  # Full installation script
+├── setup-minimal.sh          # Minimal installation script
+├── scripts/                  # Animation programs
+├── webgui/                   # Web interface
+├── hardware/                 # Hardware integration modules
+├── logs/                     # System logs (not in git)
+├── venv/                     # Virtual environment (not in git)
+└── tests/                    # Test suite
+```
+
+### 7.2 Version Control
+- **Git Ignore**: Exclude logs, venv, settings.json, and temporary files
+- **Commit Messages**: Descriptive messages following conventional format
+- **Branching**: Feature branches for development, master for production
+- **Releases**: Tagged releases with semantic versioning
+
+### 7.3 Configuration Management
+- **Default Configuration**: Safe defaults in config.py
+- **Runtime Settings**: User preferences in settings.json
+- **Environment Variables**: System-specific overrides
+- **Validation**: Input validation for all configuration parameters
+
+---
+
+## 8. PERFORMANCE STANDARDS
+
+### 8.1 Real-time Requirements
+- **Frame Rate**: Maintain consistent 15 FPS minimum
+- **Latency**: Web interface changes reflected within 100ms
+- **Memory Usage**: Stay within reasonable limits for Pi Zero W
+- **CPU Usage**: Leave headroom for system operations
+
+### 8.2 Optimization Guidelines
+- **Animation Efficiency**: Minimize calculations per frame
+- **Memory Management**: Avoid memory leaks in long-running animations
+- **Network Performance**: Minimize API response times
+- **Startup Time**: System ready within 30 seconds of boot
+
+### 8.3 Monitoring
+- **Performance Metrics**: Track frame rates, memory usage, CPU load
+- **Error Tracking**: Log and categorize all system errors
+- **Health Checks**: Periodic system health validation
+- **Usage Statistics**: Monitor API usage and animation popularity
+
+---
+
+## 9. QUALITY ASSURANCE
+
+### 9.1 Code Review Process
+- **Functionality**: Does the code work as intended?
+- **Performance**: Will it maintain real-time requirements?
+- **Safety**: No risk of hardware damage or system instability?
+- **Documentation**: Is the code properly documented?
+
+### 9.2 Testing Process
+1. **Static Analysis**: Code style and basic error checking
+2. **Unit Tests**: Individual component testing
+3. **Integration Tests**: System component interaction
+4. **Hardware Tests**: Physical LED matrix validation
+5. **Performance Tests**: Real-time requirement validation
+
+### 9.3 Release Criteria
+- All tests passing
+- Performance benchmarks met
+- Documentation updated
+- Hardware validation complete
+- Production deployment tested
+
+---
+
+**Built for Reliable LED Matrix Control | Hardware Safety | Real-time Performance | Production Ready**
