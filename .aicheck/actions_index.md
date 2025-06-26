@@ -1,6 +1,6 @@
 # Actions Index
 
-*Last Updated: 2025-06-24*
+*Last Updated: 2025-06-25*
 
 ## Active Actions
 
@@ -17,6 +17,7 @@
 
 | Action | Author | Completed | Notes |
 |--------|--------|-----------|-------|
+| NebulaScript | | 2025-06-25 | |
 | WebGuiSettingsInvestigation | | 2025-06-23 | |
 | WebGuiSettingsInvestigation | | 2025-06-23 | |
 | LightBoxWorkspace | | 2025-06-15 | |
