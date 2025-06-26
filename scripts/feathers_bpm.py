@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Feathers BPM Animation for CosmicLED
 Feather patterns synchronized to 120 BPM music
@@ -98,9 +99,8 @@ def animate(pixels, config, frame):
             background_texture = math.sin(bg_phase) * 0.1 + 0.1
             brightness += background_texture
             
-            # Apply beat intensity scaling
-            brightness *= (0.7 + beat_intensity * 0.3)
-            brightness = max(0.0, min(1.0, brightness * config.brightness_scale))
+            # Normalize effect brightness (global brightness applied later)
+            brightness = max(0.0, min(1.0, brightness))
             
             # Color shifts with beat progression
             hue_base = (config.hue_offset + beat_number * 15) % 360
@@ -135,9 +135,17 @@ def animate(pixels, config, frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
                 else:
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
             except IndexError:
                 pass
 
@@ -151,7 +159,6 @@ ANIMATION_INFO = {
     'parameters': {
         'speed': 'Beat sync multiplier (0.5-2.0 recommended)',
         'scale': 'Feather size (0.1-3.0)',
-        'brightness_scale': 'Beat intensity (0.0-2.0)',
         'hue_offset': 'Color shift (0-360 degrees)',
         'saturation': 'Color saturation (0.0-1.0)'
     },

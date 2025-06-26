@@ -1,18 +1,23 @@
 [Unit]
-Description=CosmicLED Matrix Animation System
-After=network.target
+Description=LightBox LED Matrix Animation System
+After=network.target multi-user.target
 Wants=network.target
+StartLimitBurst=3
+StartLimitIntervalSec=60
 
 [Service]
 Type=simple
 User=root
 Group=root
 WorkingDirectory=/home/fieldjoshua/LightBox
-ExecStart=/home/fieldjoshua/LightBox/venv/bin/python3 /home/fieldjoshua/LightBox/CosmicLED.py
+ExecStart=/home/fieldjoshua/LightBox/venv/bin/python3 /home/fieldjoshua/LightBox/Conductor.py
+ExecStop=/bin/kill -TERM $MAINPID
 Restart=always
-RestartSec=5
+RestartSec=10
 StandardOutput=journal
 StandardError=journal
+TimeoutStartSec=30
+TimeoutStopSec=10
 
 # Environment variables
 Environment=PYTHONPATH=/home/fieldjoshua/LightBox
@@ -22,9 +27,18 @@ Environment=HOME=/home/fieldjoshua
 MemoryLimit=512M
 CPUQuota=80%
 
-# Security settings (adjust as needed)
+# Security settings (adjusted for GPIO access)
 NoNewPrivileges=false
 PrivateTmp=true
+PrivateDevices=false
+DeviceAllow=/dev/mem rw
+DeviceAllow=/dev/gpiomem rw
+DeviceAllow=/dev/vcio rw
+CapabilityBoundingSet=CAP_SYS_RAWIO
+AmbientCapabilities=CAP_SYS_RAWIO
+
+# Logging
+SyslogIdentifier=lightbox
 
 [Install]
 WantedBy=multi-user.target

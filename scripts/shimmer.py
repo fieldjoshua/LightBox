@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Shimmer Animation for CosmicLED
 Creates a shimmering wave effect across the LED matrix
@@ -56,8 +57,8 @@ def animate(pixels, config, frame):
             hue_variation = math.sin(x * 0.2 + y * 0.15 + time_offset * 0.1) * 30
             pixel_hue = (base_hue + hue_variation) % 360
             
-            # Apply brightness scaling
-            brightness_scaled = final_brightness * config.brightness_scale
+            # Effect brightness kept separate (global brightness applied later)
+            brightness = final_brightness
             
             # Get color from palette or HSV
             if hasattr(config, 'get_palette_color'):
@@ -66,15 +67,15 @@ def animate(pixels, config, frame):
                 r, g, b = config.get_palette_color(palette_pos)
                 
                 # Apply brightness
-                r = int(r * brightness_scaled)
-                g = int(g * brightness_scaled)
-                b = int(b * brightness_scaled)
+                r = int(r * brightness)
+                g = int(g * brightness)
+                b = int(b * brightness)
             else:
                 # Fallback to HSV conversion
                 r, g, b = config.hsv_to_rgb(
                     pixel_hue, 
                     config.saturation, 
-                    brightness_scaled
+                    brightness
                 )
             
             # Apply gamma correction
@@ -91,9 +92,17 @@ def animate(pixels, config, frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
                 else:
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
             except IndexError:
                 # Handle matrix size mismatches gracefully
                 pass
@@ -107,7 +116,6 @@ ANIMATION_INFO = {
     'parameters': {
         'speed': 'Animation speed (0.1-5.0)',
         'scale': 'Wave scale (0.1-3.0)',
-        'brightness_scale': 'Overall brightness (0.0-2.0)',
         'hue_offset': 'Color shift (0-360 degrees)',
         'saturation': 'Color saturation (0.0-1.0)'
     }

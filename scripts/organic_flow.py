@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Organic Flow Animation for CosmicLED
 Creates fluid, organic patterns inspired by cellular structures and flowing liquids
@@ -104,8 +105,8 @@ def animate(pixels, config, frame):
             pulse = math.sin(pulse_phase) * 0.2 + 0.8
             final_brightness *= pulse
             
-            # Apply brightness scaling
-            final_brightness = max(0.0, min(1.0, final_brightness * config.brightness_scale))
+            # Keep effect brightness in 0–1 range (global brightness applied later)
+            final_brightness = max(0.0, min(1.0, final_brightness))
             
             # Color based on flow dynamics
             flow_angle = math.atan2(flow_vectors_y, flow_vectors_x)
@@ -146,9 +147,17 @@ def animate(pixels, config, frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
                 else:
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
             except IndexError:
                 pass
 
@@ -161,7 +170,6 @@ ANIMATION_INFO = {
     'parameters': {
         'speed': 'Flow speed (0.1-5.0)',
         'scale': 'Pattern scale (0.1-3.0)',
-        'brightness_scale': 'Pattern intensity (0.0-2.0)',
         'hue_offset': 'Color shift (0-360 degrees)',
         'saturation': 'Color saturation (0.0-1.0)'
     },

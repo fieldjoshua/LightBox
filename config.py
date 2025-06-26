@@ -11,26 +11,35 @@ from pathlib import Path
 class Config:
     def __init__(self):
         # Matrix hardware settings (Pi Zero W optimized)
-        self.matrix_width = 8
-        self.matrix_height = 8
+        self.matrix_width = 10
+        self.matrix_height = 10
         self.serpentine_wiring = True  # True for serpentine, False for progressive
         
         # Animation settings (Pi Zero W optimized)
-        self.brightness = 0.7
+        self.brightness = 0.5
         self.gamma = 2.2
-        self.fps = 20  # Reduced for Pi Zero W performance
-        self.current_program = "cosmic"
+        self.fps = 15  # Reduced for Pi Zero W performance
+        self.current_program = "aurora"
         
         # Color settings
         self.hue_offset = 0
         self.saturation = 1.0
-        self.brightness_scale = 1.2  # Increased for better visibility
         self.current_palette = "rainbow"
         
         # Animation parameters
         self.speed = 1.0
         self.scale = 1.0
         self.blend_mode = "normal"
+        
+        # Web server settings
+        self.web_port = 5001  # Default to 5001 to avoid conflicts with macOS Control Center
+        
+        # LED color order correction (common issue with WS2811 strips)
+        self.color_order = "GRB"  # Change to "RGB" if colors are correct, "GRB" if red shows as green
+        
+        # Change detection for real-time updates
+        self._last_modified = 0
+        self._update_counter = 0
         
         # Color palettes
         self.palettes = {
@@ -70,6 +79,13 @@ class Config:
                 (255, 0, 255),  # Magenta
                 (255, 69, 0),   # Orange Red
                 (255, 140, 0)   # Dark Orange
+            ],
+            "greyscale": [
+                (0, 0, 0),      # Black
+                (64, 64, 64),   # Dark Grey
+                (128, 128, 128), # Medium Grey
+                (192, 192, 192), # Light Grey
+                (255, 255, 255)  # White
             ]
         }
         
@@ -78,6 +94,11 @@ class Config:
         
         # Load saved settings
         self.load_settings()
+        
+        # Initialize change tracking
+        import time
+        self._last_modified = time.time()
+        self._update_counter = 0
     
     def xy_to_index(self, x, y):
         """Convert x,y coordinates to pixel index"""
@@ -104,11 +125,33 @@ class Config:
             
         return x, y
     
+    def correct_color(self, r, g, b):
+        """Apply color order correction for LED strips"""
+        if self.color_order == "GRB":
+            # Swap red and green for GRB strips
+            return (g, r, b)
+        elif self.color_order == "BGR":
+            # Swap red and blue for BGR strips
+            return (b, g, r)
+        elif self.color_order == "BRG":
+            return (b, r, g)
+        elif self.color_order == "RBG":
+            return (r, b, g)
+        elif self.color_order == "GBR":
+            return (g, b, r)
+        else:
+            # Default RGB order
+            return (r, g, b)
+    
     def hsv_to_rgb(self, h, s, v):
         """Convert HSV to RGB color values"""
         h = h / 360.0  # Convert to 0-1 range
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
-        return int(r * 255), int(g * 255), int(b * 255)
+        # Clamp values to ensure they're in 0-255 range
+        r = max(0, min(255, int(r * 255)))
+        g = max(0, min(255, int(g * 255)))
+        b = max(0, min(255, int(b * 255)))
+        return r, g, b
     
     def rgb_to_hsv(self, r, g, b):
         """Convert RGB to HSV color values"""
@@ -165,7 +208,6 @@ class Config:
                     # Load color settings
                     self.hue_offset = data.get('hue_offset', self.hue_offset)
                     self.saturation = data.get('saturation', self.saturation)
-                    self.brightness_scale = data.get('brightness_scale', self.brightness_scale)
                     self.current_palette = data.get('current_palette', self.current_palette)
                     
                     # Load animation parameters
@@ -173,12 +215,26 @@ class Config:
                     self.scale = data.get('scale', self.scale)
                     self.blend_mode = data.get('blend_mode', self.blend_mode)
                     
+                    # Load web server settings
+                    self.web_port = data.get('web_port', self.web_port)
+                    
+                    # Load color order settings
+                    self.color_order = data.get('color_order', self.color_order)
+                    
                     # Load custom palettes
                     if 'palettes' in data:
-                        self.palettes.update(data['palettes'])
+                        if isinstance(data['palettes'], dict):
+                            self.palettes.update(data['palettes'])
+                        else:
+                            print(f"⚠️  Invalid palettes data type: {type(data['palettes'])}")
                     
                     # Load presets
-                    self.presets = data.get('presets', {})
+                    presets_data = data.get('presets', {})
+                    if isinstance(presets_data, dict):
+                        self.presets = presets_data
+                    else:
+                        print(f"⚠️  Invalid presets data type: {type(presets_data)}")
+                        self.presets = {}
                     
                 print("✅ Settings loaded from settings.json")
             except Exception as e:
@@ -197,11 +253,12 @@ class Config:
                 'current_program': self.current_program,
                 'hue_offset': self.hue_offset,
                 'saturation': self.saturation,
-                'brightness_scale': self.brightness_scale,
                 'current_palette': self.current_palette,
                 'speed': self.speed,
                 'scale': self.scale,
                 'blend_mode': self.blend_mode,
+                'web_port': self.web_port,
+                'color_order': self.color_order,
                 'palettes': self.palettes,
                 'presets': self.presets
             }
@@ -213,6 +270,17 @@ class Config:
         except Exception as e:
             print(f"❌ Failed to save settings: {e}")
     
+    def mark_updated(self):
+        """Mark configuration as updated for change detection"""
+        import time
+        self._last_modified = time.time()
+        self._update_counter += 1
+    
+    def has_updates(self, last_check_time=0, last_counter=0):
+        """Check if configuration has been updated since last check"""
+        return (self._last_modified > last_check_time or 
+                self._update_counter > last_counter)
+    
     def create_preset(self, name):
         """Create a preset from current settings"""
         self.presets[name] = {
@@ -222,7 +290,6 @@ class Config:
             'current_program': self.current_program,
             'hue_offset': self.hue_offset,
             'saturation': self.saturation,
-            'brightness_scale': self.brightness_scale,
             'current_palette': self.current_palette,
             'speed': self.speed,
             'scale': self.scale,
@@ -241,7 +308,6 @@ class Config:
             self.current_program = preset.get('current_program', self.current_program)
             self.hue_offset = preset.get('hue_offset', self.hue_offset)
             self.saturation = preset.get('saturation', self.saturation)
-            self.brightness_scale = preset.get('brightness_scale', self.brightness_scale)
             self.current_palette = preset.get('current_palette', self.current_palette)
             self.speed = preset.get('speed', self.speed)
             self.scale = preset.get('scale', self.scale)
@@ -252,6 +318,14 @@ class Config:
     
     def get_config_dict(self):
         """Get configuration as dictionary for API"""
+        # Ensure palettes and presets are dictionaries
+        if not isinstance(self.palettes, dict):
+            print(f"⚠️  palettes is not a dict: {type(self.palettes)}")
+            self.palettes = {}
+        if not isinstance(self.presets, dict):
+            print(f"⚠️  presets is not a dict: {type(self.presets)}")
+            self.presets = {}
+            
         return {
             'matrix_width': self.matrix_width,
             'matrix_height': self.matrix_height,
@@ -262,7 +336,6 @@ class Config:
             'current_program': self.current_program,
             'hue_offset': self.hue_offset,
             'saturation': self.saturation,
-            'brightness_scale': self.brightness_scale,
             'current_palette': self.current_palette,
             'speed': self.speed,
             'scale': self.scale,

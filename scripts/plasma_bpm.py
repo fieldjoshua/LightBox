@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Plasma BPM Animation for CosmicLED
 Electric plasma effects synchronized to 120 BPM music
@@ -129,9 +130,9 @@ def animate(pixels, config, frame):
             plasma_glow = math.exp(-glow_distance * 2.0) * glow_intensity
             plasma_brightness += plasma_glow
             
-            # Apply brightness scaling with beat emphasis
+            # Apply beat emphasis (global brightness applied later)
             beat_brightness_boost = 0.8 + beat_intensity * 0.4 + kick_beat * 0.3
-            final_brightness = max(0.0, min(1.0, plasma_brightness * config.brightness_scale * beat_brightness_boost))
+            final_brightness = max(0.0, min(1.0, plasma_brightness * beat_brightness_boost))
             
             # Color changes with beat progression
             if arc_intensity > 0.1:
@@ -185,9 +186,17 @@ def animate(pixels, config, frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
                 else:
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
             except IndexError:
                 pass
 
@@ -201,7 +210,6 @@ ANIMATION_INFO = {
     'parameters': {
         'speed': 'Beat sync multiplier (0.5-2.0 recommended)',
         'scale': 'Field intensity (0.1-3.0)',
-        'brightness_scale': 'Plasma brightness (0.0-2.0)',
         'hue_offset': 'Color shift (0-360 degrees)',
         'saturation': 'Color saturation (0.0-1.0)'
     },

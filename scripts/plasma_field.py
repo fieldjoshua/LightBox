@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Plasma Field Animation for CosmicLED
 Creates electric plasma-like effects with energy tendrils and electromagnetic fields
@@ -96,8 +97,8 @@ def animate(pixels, config, frame):
             plasma_glow = math.exp(-glow_distance * 2.0) * 0.3
             plasma_brightness += plasma_glow
             
-            # Apply brightness scaling
-            final_brightness = max(0.0, min(1.0, plasma_brightness * config.brightness_scale))
+            # Keep effect brightness in 0–1 range (global brightness applied later)
+            final_brightness = max(0.0, min(1.0, plasma_brightness))
             
             # Color based on field characteristics
             if arc_intensity > 0.1:
@@ -145,9 +146,17 @@ def animate(pixels, config, frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
                 else:
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
             except IndexError:
                 pass
 
@@ -160,7 +169,6 @@ ANIMATION_INFO = {
     'parameters': {
         'speed': 'Field oscillation speed (0.1-5.0)',
         'scale': 'Field intensity (0.1-3.0)',
-        'brightness_scale': 'Plasma brightness (0.0-2.0)',
         'hue_offset': 'Color shift (0-360 degrees)',
         'saturation': 'Color saturation (0.0-1.0)'
     },

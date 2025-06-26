@@ -10,17 +10,13 @@ RPi.GPIO>=0.7.1
 Flask>=2.3.0
 Flask-CORS>=4.0.0
 
-# Image processing and fonts
-Pillow>=10.0.0
-
-# System monitoring
-psutil>=5.9.0
-
 # Scientific computing (for animations)
 numpy>=1.24.0
 
-# Optional OLED display support
-adafruit-circuitpython-ssd1306>=2.12.0
+# System monitoring (optional, for stats)
+psutil>=5.9.0
 
-# Development and testing
-pytest>=7.4.0
+# Optional: add these if you use them
+# Pillow>=10.0.0              # For image/OLED support
+# adafruit-circuitpython-ssd1306>=2.12.0  # For SSD1306 OLED display
+# pytest>=7.4.0               # For development/testing

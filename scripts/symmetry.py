@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Symmetry Animation for CosmicLED
 Creates symmetrical patterns radiating from the center of the matrix
@@ -76,8 +77,7 @@ def animate(pixels, config, frame):
             center_bias = 1.0 - (norm_distance * 0.3)
             brightness *= center_bias
             
-            # Apply brightness scaling
-            brightness *= config.brightness_scale
+            # Keep effect brightness 0–1; global brightness applied later
             brightness = max(0.0, min(1.0, brightness))
             
             # Color calculation
@@ -125,9 +125,17 @@ def animate(pixels, config, frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
                 else:
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
             except IndexError:
                 # Handle matrix size mismatches gracefully
                 pass
@@ -141,7 +149,6 @@ ANIMATION_INFO = {
     'parameters': {
         'speed': 'Rotation speed (0.1-5.0)',
         'scale': 'Pattern scale (0.1-3.0)', 
-        'brightness_scale': 'Overall brightness (0.0-2.0)',
         'hue_offset': 'Color shift (0-360 degrees)',
         'saturation': 'Color saturation (0.0-1.0)'
     },

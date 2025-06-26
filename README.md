@@ -57,7 +57,7 @@ Edit the matrix settings in `config.py` or use the web interface:
 sudo ./venv/bin/python3 CosmicLED.py
 ```
 
-Access the web interface at: `http://your-pi-ip:5000`
+Access the web interface at: `http://your-pi-ip:5001`
 
 ## Web Interface
 
@@ -220,7 +220,7 @@ Live statistics are saved to `/tmp/cosmic_stats.json`:
 - Add user to `gpio` group: `sudo usermod -a -G gpio $USER`
 
 **Web interface not accessible:**
-- Check if port 5000 is blocked by firewall
+- Check if port 5001 is blocked by firewall
 - Verify Pi's IP address
 - Check for port conflicts with other services
 

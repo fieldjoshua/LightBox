@@ -1,5 +1,5 @@
 """
-OLED Display integration for CosmicLED
+OLED Display integration for LightBox LED Matrix
 Shows status information, current program, and system stats
 """
 

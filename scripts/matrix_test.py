@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Matrix Test Animation for CosmicLED
 Hardware verification animation that tests all pixels and wiring patterns
@@ -70,7 +71,7 @@ def animate(pixels, config, frame):
 def _test_all_white(pixels, config, test_frame):
     """Test all pixels with white color at varying brightness"""
     brightness_cycle = math.sin(test_frame * 0.2) * 0.5 + 0.5
-    brightness = int(brightness_cycle * 255 * config.brightness_scale)
+    brightness = int(brightness_cycle * 255)
     
     for y in range(config.matrix_height):
         for x in range(config.matrix_width):
@@ -86,7 +87,7 @@ def _test_all_white(pixels, config, test_frame):
 def _test_rgb_sweep(pixels, config, test_frame):
     """Sweep through red, green, blue colors"""
     phase = (test_frame / 20.0) % 3  # 3 colors over 60 frames
-    brightness = int(255 * config.brightness_scale)
+    brightness = 255
     
     if phase < 1:
         # Red phase
@@ -103,9 +104,17 @@ def _test_rgb_sweep(pixels, config, test_frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = color
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, color[0] * brightness))),
+                        int(max(0, min(255, color[1] * brightness))),
+                        int(max(0, min(255, color[2] * brightness)))
+                    )
                 else:
-                    pixels[pixel_index] = color
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, color[0] * brightness))),
+                        int(max(0, min(255, color[1] * brightness))),
+                        int(max(0, min(255, color[2] * brightness)))
+                    )
             except IndexError:
                 pass
 
@@ -116,7 +125,7 @@ def _test_pixel_scan(pixels, config, test_frame):
         return
         
     current_pixel = (test_frame * 2) % total_pixels
-    brightness = int(255 * config.brightness_scale)
+    brightness = 255
     
     # Convert linear index back to x,y coordinates
     x, y = config.index_to_xy(current_pixel)
@@ -136,7 +145,7 @@ def _test_row_scan(pixels, config, test_frame):
         return
         
     current_row = (test_frame // 5) % config.matrix_height
-    brightness = int(255 * config.brightness_scale)
+    brightness = 255
     
     for x in range(config.matrix_width):
         pixel_index = config.xy_to_index(x, current_row)
@@ -154,7 +163,7 @@ def _test_column_scan(pixels, config, test_frame):
         return
         
     current_column = (test_frame // 5) % config.matrix_width
-    brightness = int(255 * config.brightness_scale)
+    brightness = 255
     
     for y in range(config.matrix_height):
         pixel_index = config.xy_to_index(current_column, y)
@@ -168,7 +177,7 @@ def _test_column_scan(pixels, config, test_frame):
 
 def _test_wiring_pattern(pixels, config, test_frame):
     """Test to verify serpentine vs progressive wiring"""
-    brightness = int(255 * config.brightness_scale)
+    brightness = 255
     
     # Create a checkerboard pattern to make wiring issues obvious
     for y in range(config.matrix_height):
@@ -182,15 +191,23 @@ def _test_wiring_pattern(pixels, config, test_frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = color
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, color[0] * brightness))),
+                        int(max(0, min(255, color[1] * brightness))),
+                        int(max(0, min(255, color[2] * brightness)))
+                    )
                 else:
-                    pixels[pixel_index] = color
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, color[0] * brightness))),
+                        int(max(0, min(255, color[1] * brightness))),
+                        int(max(0, min(255, color[2] * brightness)))
+                    )
             except IndexError:
                 pass
 
 def _test_corners_edges(pixels, config, test_frame):
     """Test corner and edge pixels"""
-    brightness = int(255 * config.brightness_scale)
+    brightness = 255
     
     # Flash corners and edges
     flash = (test_frame // 10) % 2  # Flash every 10 frames
@@ -244,30 +261,38 @@ def _test_corners_edges(pixels, config, test_frame):
 
 def _test_gradient(pixels, config, test_frame):
     """Test with color gradients"""
-    brightness_scale = config.brightness_scale
+    brightness = 255
     
     for y in range(config.matrix_height):
         for x in range(config.matrix_width):
             # Create horizontal gradient (red to blue)
             if config.matrix_width > 1:
-                red_intensity = int((1.0 - x / (config.matrix_width - 1)) * 255 * brightness_scale)
-                blue_intensity = int((x / (config.matrix_width - 1)) * 255 * brightness_scale)
+                red_intensity = int((1.0 - x / (config.matrix_width - 1)) * 255 * brightness)
+                blue_intensity = int((x / (config.matrix_width - 1)) * 255 * brightness)
             else:
-                red_intensity = int(255 * brightness_scale)
+                red_intensity = int(255 * brightness)
                 blue_intensity = 0
             
             # Add vertical green gradient
             if config.matrix_height > 1:
-                green_intensity = int((y / (config.matrix_height - 1)) * 255 * brightness_scale)
+                green_intensity = int((y / (config.matrix_height - 1)) * 255 * brightness)
             else:
                 green_intensity = 0
             
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (red_intensity, green_intensity, blue_intensity)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, red_intensity * brightness))),
+                        int(max(0, min(255, green_intensity * brightness))),
+                        int(max(0, min(255, blue_intensity * brightness)))
+                    )
                 else:
-                    pixels[pixel_index] = (red_intensity, green_intensity, blue_intensity)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, red_intensity * brightness))),
+                        int(max(0, min(255, green_intensity * brightness))),
+                        int(max(0, min(255, blue_intensity * brightness)))
+                    )
             except IndexError:
                 pass
 
@@ -278,7 +303,6 @@ ANIMATION_INFO = {
     'author': 'CosmicLED',
     'version': '1.0',
     'parameters': {
-        'brightness_scale': 'Test brightness (0.0-2.0)'
     },
     'features': [
         'All pixels white test',

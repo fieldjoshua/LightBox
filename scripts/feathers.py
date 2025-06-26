@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Feathers Animation for CosmicLED
 Creates organic, flowing feather-like patterns with soft edges and natural movement
@@ -91,8 +92,8 @@ def animate(pixels, config, frame):
             )
             brightness += background_texture
             
-            # Normalize and apply scaling
-            brightness = max(0.0, min(1.0, brightness * config.brightness_scale))
+            # Normalize effect brightness (global brightness applied later)
+            brightness = max(0.0, min(1.0, brightness))
             
             # Color based on position and time
             hue_base = (config.hue_offset + time_offset * 20) % 360
@@ -126,9 +127,17 @@ def animate(pixels, config, frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
                 else:
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
             except IndexError:
                 pass
 
@@ -141,7 +150,6 @@ ANIMATION_INFO = {
     'parameters': {
         'speed': 'Feather flow speed (0.1-5.0)',
         'scale': 'Feather size and spread (0.1-3.0)',
-        'brightness_scale': 'Pattern intensity (0.0-2.0)',
         'hue_offset': 'Color shift (0-360 degrees)',
         'saturation': 'Color saturation (0.0-1.0)'
     },

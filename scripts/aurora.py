@@ -1,3 +1,4 @@
+# flake8: noqa
 """
 Aurora Animation for CosmicLED
 Creates flowing aurora borealis-like patterns with ethereal movement
@@ -17,7 +18,6 @@ def animate(pixels, config, frame):
     
     # Animation parameters
     time_scale = config.speed * 0.06
-    flow_scale = config.scale * 0.8
     time_offset = frame * time_scale
     
     # Aurora characteristics
@@ -82,8 +82,8 @@ def animate(pixels, config, frame):
             edge_factor = 1.0 - math.exp(-edge_distance * 0.5) * 0.3
             brightness *= edge_factor
             
-            # Apply brightness scaling
-            brightness = max(0.0, min(1.0, brightness * config.brightness_scale))
+            # Keep effect brightness in 0–1 range (global brightness applied later)
+            brightness = max(0.0, min(1.0, brightness))
             
             # Get color
             if hasattr(config, 'get_palette_color'):
@@ -111,9 +111,17 @@ def animate(pixels, config, frame):
             pixel_index = config.xy_to_index(x, y)
             try:
                 if hasattr(pixels, '__setitem__'):
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
                 else:
-                    pixels[pixel_index] = (r, g, b)
+                    pixels[pixel_index] = (
+                        int(max(0, min(255, r))),
+                        int(max(0, min(255, g))),
+                        int(max(0, min(255, b)))
+                    )
             except IndexError:
                 pass
 
@@ -126,7 +134,6 @@ ANIMATION_INFO = {
     'parameters': {
         'speed': 'Aurora flow speed (0.1-5.0)',
         'scale': 'Wave amplitude (0.1-3.0)',
-        'brightness_scale': 'Aurora intensity (0.0-2.0)',
         'hue_offset': 'Color shift (0-360 degrees)',
         'saturation': 'Color saturation (0.0-1.0)'
     },

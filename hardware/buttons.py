@@ -1,5 +1,5 @@
 """
-GPIO Button integration for CosmicLED
+GPIO Button integration for LightBox LED Matrix
 Handles physical button controls for brightness, mode switching, and speed
 """
 
